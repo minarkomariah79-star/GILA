@@ -1,0 +1,54 @@
+name: Internet Scanner
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+jobs:
+  scanner_job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - job_id: 1
+            country: id
+          - job_id: 2
+            country: id
+          - job_id: 3
+            country: sg
+          - job_id: 4
+            country: sg
+          - job_id: 5
+            country: us
+          - job_id: 6
+            country: us
+          - job_id: 7
+            country: cn
+          - job_id: 8
+            country: cn
+          - job_id: 9
+            country: br
+          - job_id: 10
+            country: br
+      fail-fast: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install httpx supabase mysql-connector-python psycopg2-binary
+
+      - name: Run Scanner
+        env:
+          WORKER_ID: ${{ matrix.job_id }}
+          TARGET_COUNTRY: ${{ matrix.country }}
+        run: |
+          python crawler_engine.py
